@@ -1,0 +1,14 @@
+# Normalize line endings for cross-platform compatibility.
+# In particular, LF is required for shell scripts on Linux/Raspberry Pi.
+* text=auto
+
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.py text eol=lf
+*.js text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.md text eol=lf
+requirements.txt text eol=lf
