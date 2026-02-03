@@ -36,14 +36,14 @@ body {
             transparent 60%
         ),
         var(--bg);
+    height: 100vh;
     min-height: 100vh;
-    height: auto;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    overflow: hidden;
 }
 
 .app {
-    flex: 1;
     min-height: 0;
     display: grid;
     grid-template-rows: auto auto 1fr;
@@ -107,7 +107,8 @@ body {
 .tab-panel {
     display: none;
     min-height: 0;
-    overflow: auto;
+    height: 100%;
+    overflow: hidden;
     padding: 0 2rem 2rem;
 }
 
@@ -181,7 +182,7 @@ body {
 
 .camera-feed {
     width: 100%;
-    height: min(56vh, 560px);
+    height: clamp(320px, 55vh, 640px);
     background: #121212;
 }
 
