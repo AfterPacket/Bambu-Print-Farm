@@ -60,6 +60,11 @@ Hardware/network prerequisites:
 
 All items in this section are mandatory requirements.
 
+LAN mode / local control:
+- The printer must be configured for LAN use (LAN Mode / LAN Only Mode / Bambu Connect LAN) so it is reachable on the local network.
+- You must have the correct connection details for each printer (IP address, serial number, and LAN access code / access code).
+- If you do not have LAN mode enabled and correct connection details, this project cannot connect and cannot control the printer.
+
 Printer profile:
 - The correct printer profile must be selected for the **exact** printer model being used.
 - Build volume, bed type, and start/end gcode must match the target printer.
@@ -126,6 +131,52 @@ pip install -r requirements.txt
 - Fill in printer IP, serial, and LAN access code for each printer.
 
 The server loads `config.json` if present and falls back to `config.example.json` if `config.json` is missing.
+
+### Collect Printer Details (IP / Serial / Access Code)
+
+You must enter exact values into `config.json`.
+
+Required fields:
+- `printer_ip`: printer IP address on your LAN
+- `serial`: printer serial number (full value; do not use shortened/truncated values)
+- `access_code`: LAN access code (sometimes labeled Access Code)
+
+X1 Series (X1C / X1E):
+1. On the printer screen, open Settings (honeycomb/gear icon).
+2. Open the Network tab/page.
+3. Record the printer IP address and Access Code.
+4. Record the printer Serial Number from the device "About/Device/Printer" page (menu names vary by firmware).
+
+P1 Series (P1P / P1S):
+1. On the printer screen: Settings -> WLAN.
+2. Record IP address and Access Code.
+3. Record Serial Number from Settings -> Device -> Printer (menu names vary by firmware).
+
+A1 / A1 mini:
+1. On the printer screen: Settings.
+2. Find "LAN Only Mode" (often on a later settings page).
+3. Enable LAN Only Mode if required, then record IP address and Access Code.
+4. Record Serial Number from the Device page.
+
+Notes:
+- UI labels can change with firmware. If a path above does not match your screen, locate the equivalent Network / WLAN / LAN Only Mode / Device / About pages on the printer.
+- If you use DHCP, the IP address can change. Use a DHCP reservation on your router for stability.
+
+### Enable LAN Mode / LAN Only Mode / Developer Mode
+
+This project uses Bambu LAN local control. There are multiple LAN-related modes/paths depending on printer model and firmware:
+
+- LAN Mode / LAN Only Mode:
+  - Enables local printing/control on the LAN using an access code.
+  - This is the minimum requirement for this project.
+
+- Developer Mode (optional, higher risk):
+  - Some firmware releases include a "Developer Mode" option that can leave MQTT, live stream, and FTP open on the local network.
+  - Enabling developer mode shifts security responsibility to the operator and is not recommended on untrusted or shared networks.
+
+If you do not know which mode you are using:
+- Confirm you can view an Access Code on the printer.
+- Confirm the printer is reachable on your LAN (ping by IP, and the dashboard can read `/api/status`).
 
 4. Optional: enable HTTP Basic authentication (recommended on any non-local network):
 - Set `DASH_USER` and `DASH_PASS` environment variables before starting the server.
