@@ -108,7 +108,7 @@ body {
     display: none;
     min-height: 0;
     height: 100%;
-    overflow: hidden;
+    overflow: auto;
     padding: 0 2rem 2rem;
 }
 
@@ -138,6 +138,7 @@ body {
     border-radius: 16px;
     padding: 1.1rem 1.3rem;
     box-shadow: 0 10px 24px var(--shadow);
+    height: 100%;
     min-height: 0;
     overflow: auto;
     border: 1px solid rgba(41, 74, 125, 0.4);
