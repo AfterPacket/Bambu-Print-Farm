@@ -6,6 +6,15 @@ LAN dashboard and control surface for 3D printers. This project currently target
 
 Development status: **EXPERIMENTAL**.
 
+Screenshots (see `docs/screenshots/`):
+- `docs/screenshots/control.png`
+- `docs/screenshots/control-ams.png`
+- `docs/screenshots/jobs.png`
+
+![Control](docs/screenshots/control.png)
+![Control (AMS)](docs/screenshots/control-ams.png)
+![Jobs](docs/screenshots/jobs.png)
+
 Recent updates (current behavior):
 - Added job queue dispatcher with periodic dispatch and manual `Dispatch Now` trigger.
 - Added dispatcher diagnostics endpoints (`/api/dispatch/status`, `/api/dispatch/once`).
