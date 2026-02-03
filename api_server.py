@@ -1,4 +1,4 @@
-﻿import os
+import os
 import secrets
 import shutil
 import subprocess

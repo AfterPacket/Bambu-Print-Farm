@@ -1,4 +1,4 @@
-﻿const stateEl = document.getElementById("printerState");
+const stateEl = document.getElementById("printerState");
 const progressEl = document.getElementById("progress");
 const bedEl = document.getElementById("bedTemp");
 const nozzleEl = document.getElementById("nozzleTemp");
