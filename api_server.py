@@ -190,7 +190,11 @@ def save_upload_to_path(file: UploadFile, path: str) -> None:
 
 
 def slice_upload(file: UploadFile) -> Tuple[str, str, str]:
-    tmpdir = tempfile.mkdtemp(prefix="bambu_slice_")
+    # Use a repo-local temp directory so Flatpak slicers (and containers) can reliably access inputs.
+    # /tmp is often namespaced/sandboxed in Flatpak contexts, which can lead to "No such file" errors.
+    tmp_root = BASE_DIR / "jobs" / "tmp"
+    tmp_root.mkdir(parents=True, exist_ok=True)
+    tmpdir = tempfile.mkdtemp(prefix="bambu_slice_", dir=str(tmp_root))
     input_path = str(Path(tmpdir) / Path(file.filename).name)
     save_upload_to_path(file, input_path)
     output_path = auto_slice(slicer_config, input_path, tmpdir)

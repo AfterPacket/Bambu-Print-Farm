@@ -243,6 +243,7 @@ Scope and limitations (non-negotiable):
 - This project does not implement slicing. It shells out to an external slicer CLI.
 - Only a limited set of model formats are accepted for auto-slice (`.stl`, `.obj`, and project `.3mf`).
 - Project `.3mf` compatibility depends on slicer version. Newer project versions may be rejected by older slicers.
+- On Linux, the server writes slice inputs into `jobs/tmp/` (repo-local) to avoid Flatpak `/tmp` sandbox issues.
 
 1. Provide a slicer executable:
 - Put OrcaSlicer/Bambu Studio CLI in one of the supported locations (see `tools/README.md`), or
