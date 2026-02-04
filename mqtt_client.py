@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 import ssl
@@ -640,6 +640,13 @@ class PrinterService:
             self._mqtt_print_command("stop", sequence_id="0")
             self._mqtt_print_command("stop", sequence_id="0", param="")
             if self._wait_for_gcode_state(expected):
+                # Some firmwares latch FAILED after user stop/cancel even when there
+                # is no fault. Attempt a best-effort clear in that "soft failed" case.
+                try:
+                    if self._printer.get_state() == GcodeState.FAILED and self._is_soft_failed():
+                        self.clear_failed_state()
+                except Exception:
+                    pass
                 return True
 
             # Last resort: attempt to halt via common G-code.
@@ -648,12 +655,48 @@ class PrinterService:
             except Exception:
                 pass
             if self._wait_for_gcode_state(expected):
+                try:
+                    if self._printer.get_state() == GcodeState.FAILED and self._is_soft_failed():
+                        self.clear_failed_state()
+                except Exception:
+                    pass
                 return True
             try:
                 self._printer.gcode("M25", gcode_check=False)
             except Exception:
                 return False
             return self._wait_for_gcode_state(expected)
+
+    def _is_soft_failed(self) -> bool:
+        """
+        Detect the common post-stop "FAILED but not faulted" state.
+
+        This is intentionally conservative: only treat as "soft failed" when
+        all known error indicators are zero/empty.
+        """
+        try:
+            code_ok = int(self._printer.print_error_code()) == 0
+        except Exception:
+            code_ok = False
+
+        mc_ok = False
+        hms_ok = False
+        try:
+            dump = self._printer.mqtt_dump()
+            print_section = dump.get("print", {}) if isinstance(dump, dict) else {}
+            if isinstance(print_section, dict):
+                mc = print_section.get("mc_print_error_code")
+                try:
+                    mc_ok = (mc is None) or int(mc) == 0
+                except Exception:
+                    mc_ok = False
+                hms = print_section.get("hms")
+                hms_ok = (hms is None) or (isinstance(hms, list) and len(hms) == 0)
+        except Exception:
+            mc_ok = False
+            hms_ok = False
+
+        return code_ok and mc_ok and hms_ok
 
     def clear_failed_state(self) -> Dict[str, Any]:
         """
