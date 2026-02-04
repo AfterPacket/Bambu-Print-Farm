@@ -380,7 +380,12 @@ def printers() -> list:
 
 @app.get("/api/status", dependencies=[Depends(require_auth)])
 def status(printer_id: Optional[str] = Query(default=None)) -> dict:
-    return manager.get_status(printer_id)
+    data = manager.get_status(printer_id)
+    # Include computed availability to avoid UI confusion when firmware latches FAILED after stop/cancel.
+    if printer_id and isinstance(data, dict):
+        data = dict(data)
+        data["available"] = is_printer_available(data)
+    return data
 
 
 @app.get("/api/ams", dependencies=[Depends(require_auth)])

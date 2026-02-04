@@ -149,7 +149,13 @@ async function refreshSelectedStatus() {
     const res = await fetch(withPrinterId("/api/status"));
     const data = await res.json();
     const printerState = data.printer_state ?? "–";
-    stateEl.textContent = printerState;
+    const s = String(printerState || "").toUpperCase();
+    // Many firmwares latch FAILED after stop/cancel while still being ready.
+    const stateLabel =
+      s === "FAILED" && data.available === true
+        ? "READY (FAILED/CANCELLED)"
+        : printerState;
+    stateEl.textContent = stateLabel;
     progressEl.textContent =
       data.percentage != null ? `${data.percentage}%` : "–";
     bedEl.textContent = data.bed_temp != null ? `${data.bed_temp}C` : "–";
@@ -178,7 +184,6 @@ async function refreshSelectedStatus() {
     const pauseBtnEl = document.getElementById("pauseBtn");
     const resumeBtnEl = document.getElementById("resumeBtn");
     const stopBtnEl = document.getElementById("stopBtn");
-    const s = String(printerState || "").toUpperCase();
     const canPause = s === "RUNNING" || s === "PREPARE";
     const canResume = s === "PAUSE";
     const canStop =

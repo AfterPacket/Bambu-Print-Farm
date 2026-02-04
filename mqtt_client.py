@@ -720,6 +720,12 @@ class PrinterService:
                     "after": str(before),
                 }
 
+            soft_before = False
+            try:
+                soft_before = self._is_soft_failed()
+            except Exception:
+                soft_before = False
+
             # Send stop variants (same approach as stop_print) but wait for a
             # transition out of FAILED.
             seq = self._get_sequence_id()
@@ -729,12 +735,41 @@ class PrinterService:
             self._mqtt_print_command("stop", sequence_id="0")
             self._mqtt_print_command("stop", sequence_id="0", param="")
 
+            # Ask for a fresh state update after attempting a clear.
+            try:
+                self._printer.mqtt_client.pushall()
+            except Exception:
+                pass
+
             cleared = self._wait_for_gcode_state({GcodeState.IDLE, GcodeState.FINISH})
             try:
                 after = self._printer.get_state()
             except Exception:
                 after = before
-            return {"ok": bool(cleared), "before": str(before), "after": str(after)}
+
+            # Some firmwares will remain in FAILED after a user-cancelled print
+            # (even when there is no fault). In that case, consider the action
+            # successful if the printer is "soft failed" (no error indicators).
+            soft_after = False
+            try:
+                soft_after = self._is_soft_failed()
+            except Exception:
+                soft_after = False
+
+            ok = bool(cleared) or (soft_before and soft_after and after == GcodeState.FAILED)
+            return {
+                "ok": ok,
+                "before": str(before),
+                "after": str(after),
+                "soft_failed": bool(after == GcodeState.FAILED and soft_after),
+                "note": (
+                    "Printer still reports FAILED after stop/cancel; this is a firmware behavior. "
+                    "If error codes are zero/empty, the printer is typically ready to start the next job. "
+                    "You may still need to acknowledge the message on the printer panel."
+                    if after == GcodeState.FAILED and soft_after
+                    else None
+                ),
+            }
 
     def light_on(self) -> bool:
         with self._lock:
